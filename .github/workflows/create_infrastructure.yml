@@ -1,0 +1,115 @@
+##################################################################################################################################################
+#   Description:
+#   This workflow automates the creation of infrastructure for Unity Catalog and Databricks workspaces using Terraform.
+#   It sets up the environment, initializes Terraform, and applies the necessary configurations to create the Unity Catalog (single and shared)
+#   and Databricks instances (Total: 3) for development, pre-production, and production environments.
+#
+#   Author: Saqib Tamli
+##################################################################################################################################################
+name: Creating Databricks Infrastructure  with Terraform
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'shared/unity-catalog/**'
+      - 'workspace/ws-datalake/**'
+      - 'configs/commons/**'
+      - 'configs/environments/**'
+  pull_request:
+    branches:
+      - main
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+jobs:
+  setup-terraform:
+    name: Setup Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Update to the latest version
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3  # Update to the latest version
+        with:
+          terraform_version: 1.9.5
+
+  apply-unity-catalog:
+    name: Creating Unity Catalog
+    runs-on: ubuntu-latest
+    needs: setup-terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Creating Unity Catalog with Terraform
+        run: |
+          cd shared/unity-catalog
+          terraform init
+          terraform plan --var-file="../../configs/commons/unity-catalog.tfvars"
+          terraform apply --var-file="../../configs/commons/unity-catalog.tfvars" -auto-approve
+
+  apply-dev:
+    name: Creating Development Workspace
+    runs-on: ubuntu-latest
+    needs: [apply-unity-catalog]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Creating Databricks Development Instance
+        run: |
+          cd workspace/ws-datalake
+          terraform init
+          terraform workspace new dev || true
+          terraform workspace select dev
+          terraform init
+          terraform plan --var-file="../../configs/environments/dev.tfvars"
+          terraform apply --var-file="../../configs/environments/dev.tfvars" -auto-approve
+
+  apply-pre:
+    name: Creating Pre-Production Workspace
+    runs-on: ubuntu-latest
+    needs: [apply-dev]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Update to the latest version
+
+      - name: Creating Databricks Pre-Production Instance
+        run: |
+          cd workspace/ws-datalake
+          terraform init
+          terraform workspace new pre || true
+          terraform workspace select pre
+          terraform init
+          terraform plan --var-file="../../configs/environments/pre.tfvars"
+          terraform apply --var-file="../../configs/environments/pre.tfvars" -auto-approve
+
+  apply-prod:
+    name: Creating Production Workspace
+    runs-on: ubuntu-latest
+    needs: [apply-pre]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Creating Databricks Production Instance
+        run: |
+          cd workspace/ws-datalake
+          terraform init
+          terraform workspace new prod || true
+          terraform workspace select prod
+          terraform init
+          terraform plan --var-file="../../configs/environments/prod.tfvars"
+          terraform apply --var-file="../../configs/environments/prod.tfvars" -auto-approve

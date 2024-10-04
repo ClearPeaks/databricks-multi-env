@@ -1,0 +1,92 @@
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data, such as
+# password, private keys, and other secrets. These should not be part of version
+# control as they are data points which are potentially sensitive and subject
+# to change depending on the environment.
+# *.tfvars
+# *.tfvars.json
+
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include override files you do wish to add to version control using negated pattern
+# !example_override.tf
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+.terraform.lock.hcl
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+
+
+Click to open code
+To properly ignore the .trunk directory in your Git repository:
+
+Open or create a .gitignore file in the root of your repository.
+Add the following line to ignore the entire .trunk directory:
+
+Copy
+.trunk/
+If there are specific files within the .trunk directory that you do want to track (which is uncommon but possible), you can add exceptions. For example:
+
+Copy
+!.trunk/trunk.yaml
+!.trunk/configs/
+These lines would keep trunk.yaml and the entire configs directory in version control, while ignoring everything else in .trunk.
+Save the .gitignore file.
+If you've previously committed the .trunk directory to your repository, you'll need to remove it:
+
+Copy
+git rm -r --cached .trunk
+git commit -m "Remove .trunk directory from version control"
+After making these changes, commit your updated .gitignore file:
+
+Copy
+git add .gitignore
+git commit -m "Update .gitignore to exclude .trunk directory"
+Best Practices:
+
+Always review the contents of .trunk to ensure you're not excluding important configuration files that should be shared across the team.
+If you're using Trunk for linting or other development tools, consider committing the configuration files (like trunk.yaml) while ignoring the cache and temporary files.
+Communicate these changes to your team to ensure everyone updates their local .gitignore files.
+If you're working on an open-source project or sharing your project, including the .trunk ignore rule in your .gitignore helps other contributors maintain a clean repository.
+Rememb
+
+Claude does not have the ability to run the code it generates yet.
+Claude can make mistakes. Please double-check responses.
+
+
+
+No file chosen
+
+
+
+3.5 Sonnet
+
+.gitignore for Trunk
+
+# Ignore the entire .trunk directory
+.trunk/
+
+# Other common files to ignore
+*.log
+*.tmp
+.DS_Store
+node_modules/
