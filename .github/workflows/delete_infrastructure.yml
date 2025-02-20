@@ -41,8 +41,7 @@ jobs:
     name: Deleting Unity Catalog
     runs-on: ubuntu-latest
     needs: [setup-terraform]
-    env:
-      PATH: ${{ github.workspace }}/bin:${{ env.PATH }}
+    
 
     steps:
       - name: Checkout code
@@ -59,8 +58,7 @@ jobs:
     name: Deleting Development Workspace
     runs-on: ubuntu-latest
     needs: [setup-terraform, apply-unity-catalog]
-    env:
-      PATH: ${{ github.workspace }}/bin:${{ env.PATH }}
+    
 
     steps:
       - name: Checkout code
@@ -80,8 +78,6 @@ jobs:
     name: Deleting Pre-Production Workspace
     runs-on: ubuntu-latest
     needs: [setup-terraform, apply-dev]
-    env:
-      PATH: ${{ github.workspace }}/bin:${{ env.PATH }}
 
     steps:
       - name: Checkout code
@@ -101,8 +97,7 @@ jobs:
     name: Deleting Production Workspace
     runs-on: ubuntu-latest
     needs: [setup-terraform, apply-pre]
-    env:
-      PATH: ${{ github.workspace }}/bin:${{ env.PATH }}
+
 
     steps:
       - name: Checkout code
@@ -110,10 +105,3 @@ jobs:
 
       - name: Deleting Databricks Production Instance
         run: |
-          cd workspace/ws-datalake
-          terraform init
-          terraform workspace new prod || true
-          terraform workspace select prod
-          terraform init
-          terraform plan -destroy --var-file="../../configs/environments/prod.tfvars"  -out deployment.tfplan
-          terraform apply deployment.tfplan -auto-approve
