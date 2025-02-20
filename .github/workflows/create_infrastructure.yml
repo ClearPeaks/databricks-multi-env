@@ -54,7 +54,7 @@ jobs:
         run: |
           cd shared/unity-catalog
           terraform init
-          terraform plan --var-file="../../configs/commons/unity-catalog.tfvars"  -out deployment.tfplan
+          terraform plan -destroy --var-file="../../configs/commons/unity-catalog.tfvars"  -out deployment.tfplan
           terraform apply deployment.tfplan -auto-approve
 
   apply-dev:
@@ -73,7 +73,7 @@ jobs:
           terraform workspace new dev || true
           terraform workspace select dev
           terraform init
-          terraform plan --var-file="../../configs/environments/dev.tfvars" -out deployment.tfplan 
+          terraform plan -destroy --var-file="../../configs/environments/dev.tfvars" -out deployment.tfplan 
           terraform apply deployment.tfplan  -auto-approve
 
   apply-pre:
@@ -92,7 +92,7 @@ jobs:
           terraform workspace new pre || true
           terraform workspace select pre
           terraform init
-          terraform plan --var-file="../../configs/environments/pre.tfvars"  -out deployment.tfplan
+          terraform plan -destroy --var-file="../../configs/environments/pre.tfvars"  -out deployment.tfplan
           terraform apply deployment.tfplan -auto-approve
 
   apply-prod:
@@ -111,5 +111,5 @@ jobs:
           terraform workspace new prod || true
           terraform workspace select prod
           terraform init
-          terraform plan --var-file="../../configs/environments/prod.tfvars"  -out deployment.tfplan
+          terraform plan -destroy --var-file="../../configs/environments/prod.tfvars"  -out deployment.tfplan
           terraform apply deployment.tfplan -auto-approve
